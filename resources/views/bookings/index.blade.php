@@ -33,13 +33,17 @@
                         <tr class="naisya-fade">
                             <td>{{ $loop->iteration }}</td>
                             <td class="fw-semibold">{{ $b->field->name }}</td>
-                            <td>{{ $b->booking_date }}</td>
-                            <td>{{ $b->start_time }} - {{ $b->end_time }}</td>
-                            <td>Rp {{ number_format($b->total_price) }}</td>
+                            <td>{{ $b->booking_date?->format('d M Y') }}</td>
+
+                            {{-- ✅ Jam per 1 jam --}}
+                            <td class="fw-semibold">{{ $b->hourLabel() }}</td>
+
+                            {{-- ✅ total pakai kolom total --}}
+                            <td>Rp {{ number_format($b->total, 0, ',', '.') }}</td>
 
                             @php
                                 $badge = match ($b->status) {
-                                    'paid' => 'success',
+                                    'approved_paid', 'paid' => 'success',
                                     'rejected' => 'danger',
                                     'approved_unpaid' => 'primary',
                                     default => 'warning',
@@ -52,10 +56,11 @@
                                 </span>
                             </td>
 
+                            {{-- ✅ kalau payment masih di bookings table --}}
                             <td>
-                                @if ($b->payment)
+                                @if ($b->payment_status)
                                     <span class="badge rounded-pill text-bg-secondary">
-                                        {{ $b->payment->status }}
+                                        {{ $b->payment_status }}
                                     </span>
                                 @else
                                     <span class="text-muted small">-</span>
@@ -68,9 +73,10 @@
                                         class="btn btn-sm naisya-btn naisya-btn-primary">
                                         <i class="bi bi-credit-card me-1"></i>Bayar
                                     </a>
-                                @elseif($b->status === 'paid')
-                                    <span class="text-success small fw-semibold"><i
-                                            class="bi bi-check-circle me-1"></i>Lunas</span>
+                                @elseif($b->status === 'approved_paid' || $b->status === 'paid')
+                                    <span class="text-success small fw-semibold">
+                                        <i class="bi bi-check-circle me-1"></i>Lunas
+                                    </span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif

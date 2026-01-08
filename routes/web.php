@@ -24,6 +24,11 @@ Route::middleware('auth')->group(function () {
     // BOOKINGS (user)
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+
+    // ✅ untuk cek jam yang sudah dibooking (AJAX)
+    Route::get('/bookings/availability', [BookingController::class, 'availability'])
+        ->name('bookings.availability');
+
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
     // PAYMENTS (user)

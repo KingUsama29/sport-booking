@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
@@ -12,26 +10,35 @@ class Booking extends Model
         'user_id',
         'field_id',
         'booking_date',
-        'start_time',
-        'end_time',
-        'total_price',
+        'start_hour',
+        'total',
         'status',
-        'notes',
+        'payment_status',
+        'midtrans_order_id',
+        'midtrans_transaction_id',
+        'snap_token',
+        'paid_at',
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $casts = [
+        'booking_date' => 'date',
+        'paid_at' => 'datetime',
+    ];
 
-    public function field(): BelongsTo
+    public function field()
     {
         return $this->belongsTo(Field::class);
     }
 
-    public function payment(): HasOne
+    public function user()
     {
-        return $this->hasOne(\App\Models\Payment::class);
+        return $this->belongsTo(User::class);
     }
 
+    // helper buat text jam
+    public function hourLabel(): string
+    {
+        $h = (int) $this->start_hour;
+        return str_pad($h, 2, '0', STR_PAD_LEFT).":00 - ".str_pad($h + 1, 2, '0', STR_PAD_LEFT).":00";
+    }
 }
