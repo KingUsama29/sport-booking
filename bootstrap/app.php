@@ -11,11 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // alias middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminOnly::class,
         ]);
 
+        // ✅ EXCLUDE CSRF UNTUK WEBHOOK MIDTRANS
+        $middleware->validateCsrfTokens(except: [
+            'payments/midtrans/notification',
+            'payments/midtrans/notification/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

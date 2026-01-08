@@ -10,7 +10,7 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with('field')
+        $bookings = Booking::with('field', 'payment')
             ->where('user_id', auth()->id())
             ->latest()
             ->paginate(10);

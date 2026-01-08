@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Field extends Model
 {
     protected $fillable = [
-        'name', 'sport_type', 'price_per_hour', 'location', 'description'
+        'name', 'sport_type', 'price_per_hour', 'location', 'description', 'image',
     ];
 
     public function bookings(): HasMany

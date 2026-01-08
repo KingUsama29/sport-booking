@@ -1,0 +1,361 @@
+:root {
+    --bg: #f6f8fc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e7eef7;
+    --shadow: 0 12px 28px rgba(15, 23, 42, .08);
+
+    /* Accent (gradasi tipis, bukan gelap) */
+    --primary: #5b6cff;
+    --primary2: #8b5cf6;
+    --accent: #22c55e;
+
+    --warn: #f59e0b;
+    --danger: #ef4444;
+
+    --radius: 18px;
+}
+
+* {
+    font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.naisya-body {
+    background:
+        radial-gradient(900px 400px at 10% 0%, rgba(91, 108, 255, .10), transparent 60%),
+        radial-gradient(900px 450px at 90% 10%, rgba(34, 197, 94, .08), transparent 55%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+.naisya-nav {
+    background: rgba(255, 255, 255, .82);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+
+.naisya-brand-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(91, 108, 255, .18), rgba(139, 92, 246, .18));
+    border: 1px solid rgba(91, 108, 255, .22);
+    color: #3b4bff;
+}
+
+.navbar .nav-link {
+    color: #334155 !important;
+}
+
+.navbar .nav-link:hover {
+    color: #0f172a !important;
+}
+
+.navbar .dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.naisya-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eef2ff;
+    border: 1px solid #dfe6ff;
+    color: #3b4bff;
+    font-weight: 700;
+}
+
+/* HERO */
+.naisya-hero {
+    border-radius: 24px;
+    background:
+        linear-gradient(135deg, rgba(91, 108, 255, .10), rgba(34, 197, 94, .07));
+    border: 1px solid rgba(91, 108, 255, .18);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .55s ease both;
+}
+
+/* Overlay dikurangi biar gak bikin teks pudar */
+.naisya-hero::after {
+    content: "";
+    position: absolute;
+    inset: -60px;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .55), transparent 55%);
+    opacity: .45;
+    /* kunci: kecilin opacity */
+    pointer-events: none;
+}
+
+.naisya-title {
+    letter-spacing: -.02em;
+}
+
+/* Cards */
+.naisya-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, .06);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    overflow: hidden;
+}
+
+.naisya-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(91, 108, 255, .22);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .10);
+}
+
+.naisya-badge {
+    padding: .35rem .65rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    background: #f1f5ff;
+    border: 1px solid #e3eaff;
+    color: #3b4bff;
+}
+
+/* Buttons */
+.naisya-btn {
+    border-radius: 14px !important;
+    padding: .65rem 1rem !important;
+    font-weight: 600;
+}
+
+.naisya-btn-primary {
+    border: none !important;
+    background: linear-gradient(90deg, var(--primary), var(--primary2));
+    color: white !important;
+    box-shadow: 0 10px 20px rgba(91, 108, 255, .22);
+}
+
+.naisya-btn-primary:hover {
+    filter: brightness(1.03);
+}
+
+.naisya-btn-soft {
+    background: #ffffff;
+    border: 1px solid #dfe6ff !important;
+    color: #334155 !important;
+}
+
+.naisya-btn-soft:hover {
+    background: #f8fafc;
+}
+
+/* Glass section -> jadi "surface" */
+.naisya-glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    background: #ffffff;
+    border: 1px solid #dbe7f6;
+    color: var(--text);
+    border-radius: 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 .2rem rgba(91, 108, 255, .18);
+    border-color: rgba(91, 108, 255, .45);
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+}
+
+/* Tables */
+.table.naisya-table {
+    color: var(--text);
+}
+
+.table.naisya-table thead th {
+    color: #334155;
+    border-bottom: 1px solid var(--border);
+    background: #fbfcff;
+}
+
+.table.naisya-table td,
+.table.naisya-table th {
+    border-color: var(--border);
+}
+
+.table.naisya-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Footer */
+.naisya-footer {
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, .75);
+    backdrop-filter: blur(10px);
+    color: var(--muted);
+}
+
+/* Anim */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.naisya-fade {
+    animation: fadeUp .45s ease both;
+}
+
+/* Alerts */
+.alert-success {
+    background: #ecfdf5;
+    border-color: #bbf7d0;
+    color: #065f46;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #7f1d1d;
+}
+
+.alert-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #78350f;
+}
+
+
+.naisya-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3.9em;
+}
+
+.naisya-card-body {
+    padding: 22px;
+}
+
+.naisya-card-actions {
+    padding: 16px 22px 22px;
+}
+
+/* Image on cards */
+.naisya-card-media {
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.naisya-media-fallback {
+    height: 180px;
+    width: 100%;
+    background: #f1f5f9;
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
+}
+
+.naisya-card:hover .naisya-card-media {
+    transform: scale(1.03);
+    transition: transform .25s ease;
+}
+
+/* AUTH PAGES */
+.naisya-auth-wrap {
+    min-height: calc(100vh - 80px);
+    display: grid;
+    place-items: center;
+    padding: 28px 0;
+}
+
+.naisya-auth-shell {
+    width: 100%;
+    max-width: 980px;
+}
+
+.naisya-auth-card {
+    border-radius: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.naisya-auth-left {
+    padding: 28px;
+    background:
+        linear-gradient(135deg, rgba(91, 108, 255, .12), rgba(34, 197, 94, .08));
+    border-right: 1px solid var(--border);
+    height: 100%;
+}
+
+.naisya-auth-logo {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(91, 108, 255, .18), rgba(139, 92, 246, .18));
+    border: 1px solid rgba(91, 108, 255, .22);
+    color: #3b4bff;
+}
+
+.naisya-auth-right {
+    padding: 28px;
+}
+
+.naisya-auth-title {
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.naisya-auth-sub {
+    color: var(--muted);
+    font-size: .95rem;
+}
+
+.naisya-auth-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 18px 0;
+}
+
+.naisya-auth-hint {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.naisya-link {
+    color: #3b4bff;
+    text-decoration: none;
+}
+
+.naisya-link:hover {
+    text-decoration: underline;
+}

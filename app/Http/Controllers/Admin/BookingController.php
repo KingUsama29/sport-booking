@@ -17,14 +17,22 @@ class BookingController extends Controller
         return view('admin.bookings.index', compact('bookings'));
     }
 
-    public function updateStatus(Request $request, Booking $booking)
+    public function updateStatus(Request $request, \App\Models\Booking $booking)
     {
-        $validated = $request->validate([
-            'status' => 'required|in:pending,approved,rejected',
+        $request->validate([
+            'status' => 'required|in:approved_unpaid,rejected'
         ]);
 
-        $booking->update(['status' => $validated['status']]);
+        // kalau sudah paid, jangan boleh diubah
+        if ($booking->status === 'paid') {
+            return back()->with('error', 'Booking sudah dibayar, status tidak bisa diubah.');
+        }
 
-        return back()->with('success', 'Status booking berhasil diubah.');
+        $booking->update([
+            'status' => $request->status
+        ]);
+
+        return back()->with('success', 'Status booking berhasil diupdate.');
     }
+
 }
