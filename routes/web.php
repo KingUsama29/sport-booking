@@ -6,7 +6,7 @@ use App\Models\Field;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\FieldController as AdminFieldController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
-
+use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentWebhookController;
 

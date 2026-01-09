@@ -18,41 +18,75 @@ class BookingController extends Controller
         return view('bookings.index', compact('bookings'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        // ✅ Admin tidak boleh booking
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.bookings.index')
-                ->with('error', 'Admin tidak bisa melakukan booking. Gunakan akun user biasa.');
+        $fields = Field::orderBy('name')->get();
+        if ($fields->isEmpty()) {
+            return redirect()->route('fields.index')
+                ->with('error', 'Belum ada data lapangan. Tambahkan lapangan dulu.');
         }
 
-        $fields = Field::orderBy('name')->get();
+        $fieldId = $request->get('field_id') ?? $fields->first()->id;
+        $date    = $request->get('booking_date') ?? now()->toDateString();
 
-        $open = config('booking.open_hour', 8);
-        $close = config('booking.close_hour', 22);
-        $hours = range($open, $close - 1);
+        // Jam operasional
+        $openHour  = 8;
+        $closeHour = 22; // terakhir 21–22
 
-        return view('bookings.create', compact('fields', 'hours'));
+        $hours = range($openHour, $closeHour - 1);
+        $activeStatuses = ['pending', 'approved_unpaid', 'approved_paid', 'paid'];
+
+        $bookings = Booking::where('field_id', $fieldId)
+            ->whereDate('booking_date', $date)
+            ->whereIn('status', $activeStatuses)
+            ->get(['start_hour', 'end_hour']);
+
+        // booked[8] = true artinya slot 08–09 terpakai
+        $booked = array_fill($openHour, $closeHour - $openHour, false);
+
+        foreach ($bookings as $b) {
+            for ($h = (int)$b->start_hour; $h < (int)$b->end_hour; $h++) {
+                if (array_key_exists($h, $booked)) {
+                    $booked[$h] = true;
+                }
+            }
+        }
+
+        return view('bookings.create', compact(
+            'fields',
+            'fieldId',
+            'date',
+            'openHour',
+            'closeHour',
+            'hours',
+            'booked'
+        ));
     }
 
-    /**
-     * ✅ Endpoint untuk AJAX: ambil jam yang sudah dibooking
-     * return: { booked_hours: [8,9,10] }
-     */
     public function availability(Request $request)
     {
         $data = $request->validate([
-            'field_id' => ['required', 'exists:fields,id'],
+            'field_id'     => ['required', 'exists:fields,id'],
             'booking_date' => ['required', 'date'],
         ]);
 
-        $bookedHours = Booking::where('field_id', $data['field_id'])
-            ->where('booking_date', $data['booking_date'])
-            // status yang dianggap "mengunci slot"
-            ->whereIn('status', ['pending', 'approved_unpaid', 'approved_paid', 'approved'])
-            ->pluck('start_hour')
-            ->map(fn ($h) => (int) $h)
-            ->values();
+        $activeStatuses = ['pending', 'approved_unpaid', 'approved_paid', 'paid'];
+
+        $bookings = Booking::where('field_id', $data['field_id'])
+            ->whereDate('booking_date', $data['booking_date'])
+            ->whereIn('status', $activeStatuses)
+            ->get(['start_hour', 'end_hour']);
+
+        $bookedHours = [];
+
+        foreach ($bookings as $b) {
+            for ($h = (int)$b->start_hour; $h < (int)$b->end_hour; $h++) {
+                $bookedHours[$h] = true; // pakai key biar auto-unique
+            }
+        }
+
+        $bookedHours = array_keys($bookedHours);
+        sort($bookedHours);
 
         return response()->json([
             'booked_hours' => $bookedHours,
@@ -61,47 +95,63 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // ✅ Admin tidak boleh booking
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.bookings.index')
-                ->with('error', 'Admin tidak bisa melakukan booking.');
+        if (auth()->user()->role === 'admin') {
+            return back()->with('error', 'Admin tidak bisa membuat booking.');
         }
 
-        $open = config('booking.open_hour', 8);
-        $close = config('booking.close_hour', 22);
-
         $data = $request->validate([
-            'field_id' => ['required', 'exists:fields,id'],
-            'booking_date' => ['required', 'date', 'after_or_equal:today'],
-            'start_hour' => ['required', 'integer', "min:$open", "max:" . ($close - 1)],
+            'field_id'     => ['required', 'exists:fields,id'],
+            'booking_date' => ['required', 'date'],
+            'start_hour'   => ['required', 'integer', 'min:0', 'max:23'],
+            'duration'     => ['required', 'integer', 'min:1', 'max:6'],
         ]);
 
-        // ✅ Cek tabrakan (double-safety: selain unique index)
-        $exists = Booking::where('field_id', $data['field_id'])
-            ->where('booking_date', $data['booking_date'])
-            ->where('start_hour', $data['start_hour'])
-            ->whereIn('status', ['pending', 'approved_unpaid', 'approved_paid', 'approved'])
+        $start = (int) $data['start_hour'];
+        $end   = $start + (int) $data['duration'];
+
+        $openHour  = 8;
+        $closeHour = 22;
+
+        if ($start < $openHour || $end > $closeHour) {
+            return back()->withInput()->with('error', 'Jam booking di luar jam operasional.');
+        }
+
+        $activeStatuses = ['pending', 'approved_unpaid', 'approved_paid', 'paid'];
+
+        $conflict = Booking::where('field_id', $data['field_id'])
+            ->whereDate('booking_date', $data['booking_date'])
+            ->whereIn('status', $activeStatuses)
+            ->where(function ($q) use ($start, $end) {
+                $q->where('start_hour', '<', $end)
+                  ->where('end_hour', '>', $start);
+            })
             ->exists();
 
-        if ($exists) {
-            return back()->withInput()->with('error', 'Slot jam tersebut sudah dibooking. Silakan pilih jam lain.');
+        if ($conflict) {
+            return back()->withInput()->with('error', 'Slot jam yang dipilih bentrok dengan booking lain.');
         }
 
         $field = Field::findOrFail($data['field_id']);
-        $total = (int) ($field->price_per_hour ?? $field->price ?? 0);
+        $duration = $end - $start;
 
-        // ✅ status awal: pending (nunggu admin approve)
-        $booking = Booking::create([
-            'user_id' => auth()->id(),
-            'field_id' => $data['field_id'],
+        $totalPrice = (int) $field->price_per_hour * $duration;
+
+        Booking::create([
+            'user_id'      => auth()->id(),
+            'field_id'     => $data['field_id'],
             'booking_date' => $data['booking_date'],
-            'start_hour' => $data['start_hour'],
-            'total' => $total,
-            'status' => 'pending',
-            'payment_status' => null,
+            'start_hour'   => $start,
+            'end_hour'     => $end,
+
+            // kalau kamu masih mau simpan legacy kolom time:
+            'start_time'   => sprintf('%02d:00:00', $start),
+            'end_time'     => sprintf('%02d:00:00', $end),
+
+            'total_price'  => $totalPrice,
+            'status'       => 'pending',
         ]);
 
         return redirect()->route('bookings.index')
-            ->with('success', 'Booking berhasil dibuat (status: pending). Menunggu persetujuan admin.');
+            ->with('success', 'Booking berhasil dibuat.');
     }
 }

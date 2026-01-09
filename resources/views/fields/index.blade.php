@@ -9,9 +9,11 @@
         </div>
 
         @auth
-            <a href="{{ route('bookings.create') }}" class="btn naisya-btn naisya-btn-primary">
-                <i class="bi bi-calendar-plus me-2"></i>Buat Booking
-            </a>
+            @if (auth()->user()->role !== 'admin')
+                <a href="{{ route('bookings.create') }}" class="btn naisya-btn naisya-btn-primary">
+                    <i class="bi bi-calendar-plus me-2"></i>Buat Booking
+                </a>
+            @endif
         @endauth
     </div>
 
@@ -34,7 +36,9 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h5 class="mb-1">{{ $field->name }}</h5>
-                                <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ $field->location }}</div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ $field->location }}
+                                </div>
                             </div>
                             <span class="naisya-badge">{{ $field->sport_type }}</span>
                         </div>
@@ -51,10 +55,12 @@
 
                     <div class="naisya-card-actions mt-auto">
                         @auth
-                            <a href="{{ route('bookings.create', ['field_id' => $field->id]) }}"
-                                class="btn naisya-btn naisya-btn-primary w-100">
-                                <i class="bi bi-calendar-check me-2"></i>Booking
-                            </a>
+                            @if (auth()->user()->role !== 'admin')
+                                <a href="{{ route('bookings.create', ['field_id' => $field->id]) }}"
+                                    class="btn naisya-btn naisya-btn-primary w-100">
+                                    <i class="bi bi-calendar-check me-2"></i>Booking
+                                </a>
+                            @endif
                         @else
                             <a href="{{ route('login') }}" class="btn naisya-btn naisya-btn-soft w-100">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Login untuk Booking

@@ -39,7 +39,7 @@
                             <td class="fw-semibold">{{ $b->hourLabel() }}</td>
 
                             {{-- ✅ total pakai kolom total --}}
-                            <td>Rp {{ number_format($b->total, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format($b->total_price, 0, ',', '.') }}</td>
 
                             @php
                                 $badge = match ($b->status) {
